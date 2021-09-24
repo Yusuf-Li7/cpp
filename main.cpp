@@ -155,7 +155,6 @@ big_integer operator -(big_integer& a, big_integer& b) {
         big_integer c = b - a;
         return c;
     }
-
     if (a < b) {
         big_integer c = b - a;
         c.sing = true;

@@ -20,7 +20,6 @@ public:
             v.push_back((int)(s[i] - '0'));
         }
     }
-
     string make_string() {
         string s;
         bool fl = false;
