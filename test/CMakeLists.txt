@@ -2,7 +2,7 @@ find_package(GTest REQUIRED)
 
 add_executable(TestTest TestTest.cpp)
 
-target_link_libraries(TestTest)
+target_link_libraries(TestTest GTest::GTest GTest::Main)
 
 
 add_test(

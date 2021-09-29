@@ -4,3 +4,5 @@ project(HW1_big_numbers)
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(HW1_big_numbers main.cpp big_integer.cpp)
+
+#add_subdirectory(test)
