@@ -1,8 +1,8 @@
-find_package(GTest REQUIRED)
+#find_package(GTest REQUIRED)
 
-add_executable(TestTest TestTest.cpp)
+add_executable(TestTest TestTest.cpp ..//big_integer.h ..//big_integer.cpp)
 
-target_link_libraries(TestTest GTest::GTest GTest::Main)
+target_link_libraries(TestTest gtest gtest_main)
 
 
 add_test(
