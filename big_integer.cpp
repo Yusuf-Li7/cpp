@@ -1,12 +1,7 @@
 #include <string>
 #include "big_integer.h"
-#include <cassert>
-#include <cstdlib>
-#include <iomanip>
 #include <sstream>
 #include <algorithm>
-#include <random>
-#include <future>
 #include <cmath>
 
 namespace big_num {
@@ -15,28 +10,76 @@ big_integer::big_integer(const std::string &number) {
     make_number(number);
 }
 
-big_integer::big_integer(unsigned long long int &number) {
-    std::string str;
-    while (number > 0) {
-        str += (char)(number % 10 + '0');
-        number /= 10;
+big_integer::big_integer(unsigned int number) {
+    if (number == 0) {
+        make_number("0");
     }
-    reverse(str.begin(), str.end());
-    make_number(str);
+    else {
+        std::string str;
+        while (number > 0) {
+            str += (char) (number % 10 + '0');
+            number /= 10;
+        }
+        reverse(str.begin(), str.end());
+        make_number(str);
+    }
 }
 
-big_integer::big_integer(signed long long int &number) {
-    std::string str;
-    if (number < 0) {
-        str = "-";
-        number = -number;
+big_integer::big_integer(signed int number) {
+    if (number == 0) {
+        make_number("0");
     }
-    while (number > 0) {
-        str += (char)(number % 10 + '0');
-        number /= 10;
+    else {
+        std::string str;
+        if (number < 0) {
+            number = -number;
+            sing = true;
+        }
+        while (number > 0) {
+            str += (char) (number % 10 + '0');
+            number /= 10;
+        }
+        reverse(str.begin(), str.end());
+        if (sing)
+            str = '-' + str;
+        make_number(str);
     }
-    reverse(str.begin(), str.end());
-    make_number(str);
+}
+
+big_integer::big_integer(unsigned long long number) {
+    if (number == 0) {
+        make_number("0");
+    }
+    else {
+        std::string str;
+        while (number > 0) {
+            str += (char) (number % 10 + '0');
+            number /= 10;
+        }
+        reverse(str.begin(), str.end());
+        make_number(str);
+    }
+}
+
+big_integer::big_integer(signed long long number) {
+    if (number == 0) {
+        make_number("0");
+    }
+    else {
+        std::string str;
+        if (number < 0) {
+            number = -number;
+            sing = true;
+        }
+        while (number > 0) {
+            str += (char) (number % 10 + '0');
+            number /= 10;
+        }
+        reverse(str.begin(), str.end());
+        if (sing)
+            str = '-' + str;
+        make_number(str);
+    }
 }
 
 big_integer::big_integer() {
@@ -44,12 +87,14 @@ big_integer::big_integer() {
 }
 
 void big_integer::make_number(std::string s) {
+    v.clear();
+    sing = false;
     int i = 0;
     if (!s.empty() && s[i] == '-') {
         sing = true;
         i++;
     }
-    while (s[i] == 0) {
+    while (s.size() - 1 > i && s[i] == 0) {
         i++;
     }
     for (i; i < s.size(); i++) {
@@ -63,12 +108,12 @@ std::string big_integer::make_string() {
     if (sing)
         s += "-";
 
-    for (int i: v) {
-        if (i != 0)
+    for (int i = 0; i < v.size(); i++) {
+        if (v[i] != 0)
             fl = true;
-        if (!fl)
+        if (!fl && i < v.size() - 1)
             continue;
-        s += to_string(i);
+        s += to_string(v[i]);
     }
     return s;
 }
@@ -133,6 +178,8 @@ bool big_integer::operator>(big_integer& other) {
         for (int i = 0; i < v.size(); i++) {
             if (v[i] < other.v[i])
                 return true;
+            else if (v[i] > other.v[i])
+                return false;
         }
     }
 
@@ -140,6 +187,8 @@ bool big_integer::operator>(big_integer& other) {
         for (int i = 0; i < v.size(); i++) {
             if (v[i] > other.v[i])
                 return true;
+            else if (v[i] < other.v[i])
+                return false;
         }
     }
 
@@ -264,6 +313,10 @@ big_integer big_integer::operator-(big_integer& other){
         c.sing = true;
         return c;
     }
+    if (*this == other) {
+        big_integer c(0);
+        return c;
+    }
 
     big_integer c;
 
@@ -372,11 +425,120 @@ big_integer big_integer::operator*=(big_integer &other) {
 }
 
 big_integer big_integer::operator/(big_integer &other) {
-    big_integer c(0);
+    bool sing_a = false;
+    bool sing_b = false;
+
+    if (sing) {
+        sing_a = true;
+        sing = false;
+    }
+
+    if (other.sing) {
+        sing_b = true;
+        other.sing = false;
+    }
+    big_integer c( 0);
+
     if (*this < other)
         return c;
 
+    if (other == c) {
+        cout << "Error with dividing to 0";
+        return c;
+    }
+
+    string ans = "";
+    string num = "";
+    string number = make_string();
+    for (int i = 0; i < number.size(); i++) {
+        bool fl = false;
+        num += number[i];
+        big_integer a(num);
+        for (int j = 9; j >= 1; j--) {
+            big_integer t = other * j;
+            if (t <= a) {
+                ans += (char)('0' + j);
+                fl = true;
+                big_integer b = a - t;
+                num = b.make_string();
+                if (num == "0")
+                    num = "";
+                break;
+            }
+        }
+        if (!fl && !ans.empty())
+            ans += '0';
+    }
+    c.make_number(ans);
+    if (sing_a != sing_b)
+        c.sing = true;
+
     return c;
+}
+
+big_integer big_integer::operator/=(big_integer &other) {
+    return *this = (*this / other);
+}
+
+big_integer big_integer::operator%(big_integer &other) {
+    big_integer a = (*this / other);
+    big_integer b = other * a;
+    big_integer c = *this - b;
+    return c;
+}
+
+big_integer big_integer::operator%=(big_integer &other) {
+    return *this = (*this % other);
+}
+
+big_integer big_integer::operator+(int other) {
+    big_integer a(other);
+    big_integer b = *this + a;
+    return b;
+}
+
+big_integer big_integer::operator-(int other) {
+    big_integer a(other);
+    big_integer b = *this - a;
+    return b;
+}
+
+big_integer big_integer::operator*(int other) {
+    big_integer a(other);
+    big_integer b = *this * a;
+    return b;
+}
+
+big_integer big_integer::operator/(int other) {
+    big_integer a(other);
+    big_integer b = *this / a;
+    return b;
+}
+
+big_integer big_integer::operator%(int other) {
+    big_integer a(other);
+    big_integer b = *this % a;
+    return b;
+}
+
+big_integer big_integer::operator+=(int other) {
+    return *this = (*this + other);
+}
+
+big_integer big_integer::operator-=(int other) {
+    return *this = (*this - other);
+}
+
+big_integer big_integer::operator*=(int other) {
+    return *this = (*this * other);
+}
+
+big_integer big_integer::operator/=(int other) {
+    return *this = (*this / other);
+}
+
+big_integer big_integer::operator%=(int other) {
+    return *this = (*this % other);
 }
 
 } // namespace big_num

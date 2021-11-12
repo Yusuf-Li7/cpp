@@ -4,6 +4,7 @@
 #include <vector>
 #include "big_integer.h"
 #include <algorithm>
+#include <math.h>
 
 void check_number(const string& s) {
     int t = 0;
@@ -20,7 +21,7 @@ void check_number(const string& s) {
 
 void check_operation(const string& s) {
     if (!(s == "+" || s == "-" || s == ">" || s == "<" || s == ">=" || s == "<=" || s == "==" || s == "+=" ||
-    s == "-=" || s == "*" || s == "*=")) {
+    s == "-=" || s == "*" || s == "*=" || s == "/" || s == "/=" || s == "%" || s == "%=")) {
         cout << "Error! It is not a correct operation!";
         exit(0);
     }
@@ -41,7 +42,7 @@ int main() {
     s_out("number a");
     cin >> s_a;
     check_number(s_a);
-    s_out("operation ('+', '+=', '-', '-=', '*', '*=', '<', '>', '<=', '>=', '==')");
+    s_out("operation ('+', '+=', '-', '-=', '*', '*=', '/', '/=', '%', '%=', '<', '>', '<=', '>=', '==')");
     cin >> s_op;
     check_operation(s_op);
     s_out("number b");
@@ -93,6 +94,22 @@ int main() {
     }
     else if (s_op == "*=") {
         a *= b;
+        cout << a.make_string() << "\n";
+    }
+    else if (s_op == "/") {
+        big_num::big_integer c = a / b;
+        cout << c.make_string() << "\n";
+    }
+    else if (s_op == "/=") {
+        a /= b;
+        cout << a.make_string() << "\n";
+    }
+    else if (s_op == "%") {
+        big_num::big_integer c = a % b;
+        cout << c.make_string() << "\n";
+    }
+    else if (s_op == "%=") {
+        a %= b;
         cout << a.make_string() << "\n";
     }
     return 0;
